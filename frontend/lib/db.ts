@@ -86,7 +86,7 @@ function getPgPool(): Pool {
 
 /** Column name for finding_feedback.note text (reserved in Snowflake as COMMENT). */
 export function feedbackCommentColumn(): string {
-    return getDbBackend() === "snowflake" ? '"comment"' : "comment";
+    return getDbBackend() === "snowflake" ? '"COMMENT"' : "comment";
 }
 
 let connectionPromise: Promise<any> | null = null;
