@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { FleetSummaryRow } from "@/lib/types";
+import { useWorkspacePrefix } from "@/lib/workspace";
 import { Plane, FileText, AlertTriangle, Gauge, ArrowRight } from "lucide-react";
 
 interface FleetTableProps {
@@ -17,6 +18,7 @@ function getSeverityIndicator(findingCount: number) {
 }
 
 export default function FleetTable({ data, groupBy }: FleetTableProps) {
+    const ws = useWorkspacePrefix();
     const groups = data.reduce((acc, row) => {
         const key = row[groupBy] || "Unknown";
         if (!acc[key]) acc[key] = [];
@@ -58,7 +60,7 @@ export default function FleetTable({ data, groupBy }: FleetTableProps) {
                                 {groups[groupTitle].map((row, idx) => (
                                     <tr key={row.case_id} className="group hover:bg-blue-50/20 transition-all border-b last:border-0 border-blue-50/50">
                                         <td className="px-6 py-5">
-                                            <Link href={`/cases/${row.case_id}`} className="text-blue-600 font-semibold font-mono text-[13px] hover:text-blue-700">
+                                            <Link href={`${ws}/cases/${row.case_id}`} className="text-blue-600 font-semibold font-mono text-[13px] hover:text-blue-700">
                                                 {row.case_id}
                                             </Link>
                                         </td>
@@ -100,7 +102,7 @@ export default function FleetTable({ data, groupBy }: FleetTableProps) {
                                             </div>
                                         </td>
                                         <td className="px-6 py-5 text-right">
-                                            <Link href={`/cases/${row.case_id}`} className="inline-flex items-center gap-1 text-[15px] font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                                            <Link href={`${ws}/cases/${row.case_id}`} className="inline-flex items-center gap-1 text-[15px] font-bold text-blue-600 hover:text-blue-700 transition-colors">
                                                 Report <ArrowRight size={16} />
                                             </Link>
                                         </td>

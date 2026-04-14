@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -49,6 +49,8 @@ interface DashboardData {
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { workspace } = useParams<{ workspace: string }>();
+  const ws = `/${workspace}`;
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -146,7 +148,7 @@ export default function DashboardPage() {
               onClose={() => setView("dashboard")} 
               onSuccess={(data) => {
                 const id = data?.case_id ?? "";
-                router.push(id ? `/cases/${encodeURIComponent(id)}` : "/dashboard");
+                router.push(id ? `${ws}/cases/${encodeURIComponent(id)}` : `${ws}/dashboard`);
               }}
             />
           </motion.div>
@@ -228,7 +230,7 @@ export default function DashboardPage() {
                   <strong className="font-bold text-rose-500">{stopCount} critical finding{stopCount > 1 ? "s" : ""}</strong> require{stopCount === 1 ? "s" : ""} immediate attention
                   {flagCount > 0 && <span className="text-slate-500"> · {flagCount} flagged for review</span>}
                 </div>
-                <Link href="/findings" className="inline-flex items-center gap-1 text-xs font-bold text-rose-500 px-3.5 py-1.5 rounded-md bg-rose-500/10 hover:bg-rose-500/20 transition-all whitespace-nowrap">
+                <Link href={`${ws}/findings`} className="inline-flex items-center gap-1 text-xs font-bold text-rose-500 px-3.5 py-1.5 rounded-md bg-rose-500/10 hover:bg-rose-500/20 transition-all whitespace-nowrap">
                   Review now <ArrowRight size={13} />
                 </Link>
               </motion.div>
@@ -342,7 +344,7 @@ export default function DashboardPage() {
                    <p className="text-[15px] text-blue-600 leading-relaxed font-bold mb-6">
                      Your fleet is currently operating at <span className={`text-blue-600 font-black underline ${efficiencyColor}`}>{efficiency}% technical efficiency</span>. Review critical findings to improve score.
                    </p>
-                   <Link href="/fleet" className="inline-flex items-center justify-center px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white rounded-lg text-[12px] font-bold transition-all uppercase tracking-wider shadow-lg shadow-emerald-500/20">
+                   <Link href={`${ws}/fleet`} className="inline-flex items-center justify-center px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white rounded-lg text-[12px] font-bold transition-all uppercase tracking-wider shadow-lg shadow-emerald-500/20">
                      View detailed report
                    </Link>
                 </div>
@@ -360,7 +362,7 @@ export default function DashboardPage() {
                       <div className="p-2 rounded-lg bg-blue-50 text-blue-500"><Clock size={16} /></div>
                       <h3 className="text-[13px] font-bold text-slate-900 uppercase tracking-wider">Recent Technical Findings</h3>
                     </div>
-                    <Link href="/findings" className="text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors uppercase tracking-widest">
+                    <Link href={`${ws}/findings`} className="text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors uppercase tracking-widest">
                       Full feed <ArrowRight size={12} className="inline ml-1" />
                     </Link>
                   </div>
@@ -380,7 +382,7 @@ export default function DashboardPage() {
                           return 0;
                         })
                         .map((f, i) => (
-                        <Link key={f.id} href={`/cases/${f.case_id}`} className="block group p-8 hover:bg-blue-50/30 transition-all">
+                        <Link key={f.id} href={`${ws}/cases/${f.case_id}`} className="block group p-8 hover:bg-blue-50/30 transition-all">
                           <div className="flex items-start justify-between gap-4 mb-2">
                             <div className="space-y-1">
                               <p className="text-[15px] font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">{f.title}</p>

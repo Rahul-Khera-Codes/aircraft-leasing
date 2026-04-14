@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useWorkspacePrefix } from "@/lib/workspace";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
     Upload, 
@@ -24,6 +25,7 @@ interface FileWithStatus {
 
 export default function AnalysisForm() {
     const router = useRouter();
+    const ws = useWorkspacePrefix();
     const [caseId, setCaseId] = useState("");
     const [registration, setRegistration] = useState("");
     const [aircraftType, setAircraftType] = useState("");
@@ -83,7 +85,7 @@ export default function AnalysisForm() {
 
             setAnalysisProgress("Analysis complete! Redirecting to case report...");
             setTimeout(() => {
-                router.push(`/cases/${caseId}`);
+                router.push(`${ws}/cases/${caseId}`);
             }, 1500);
 
         } catch (err: any) {

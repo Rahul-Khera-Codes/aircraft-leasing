@@ -113,7 +113,7 @@ export default function LandingPage() {
 
                     {/* CTA Button */}
                     <div className="hidden md:flex items-center gap-3">
-                        <Link href="/dashboard" className="text-[13px] font-semibold text-white bg-[#1a5276] hover:bg-[#1e6091] px-5 py-2.5 rounded-lg transition-all no-underline shadow-sm hover:shadow-md">
+                        <Link href="/workspace" className="text-[13px] font-semibold text-white bg-[#1a5276] hover:bg-[#1e6091] px-5 py-2.5 rounded-lg transition-all no-underline shadow-sm hover:shadow-md">
                             Get Started
                         </Link>
                     </div>
@@ -133,7 +133,7 @@ export default function LandingPage() {
                             </a>
                         ))}
                         <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
-                            <Link href="/dashboard" className="text-sm font-semibold text-white bg-[#1a5276] px-4 py-2.5 rounded-lg no-underline text-center">Get Started</Link>
+                            <Link href="/workspace" className="text-sm font-semibold text-white bg-[#1a5276] px-4 py-2.5 rounded-lg no-underline text-center">Get Started</Link>
                         </div>
                     </div>
                 )}
@@ -170,7 +170,7 @@ export default function LandingPage() {
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-3">
-                            <Link href="/dashboard" className="inline-flex items-center justify-center gap-2 bg-[#1a5276] hover:bg-[#1e6091] text-white font-semibold text-[15px] px-7 py-3.5 rounded-xl transition-all no-underline shadow-md hover:shadow-lg">
+                            <Link href="/workspace" className="inline-flex items-center justify-center gap-2 bg-[#1a5276] hover:bg-[#1e6091] text-white font-semibold text-[15px] px-7 py-3.5 rounded-xl transition-all no-underline shadow-md hover:shadow-lg">
                                 Get Started
                                 <ArrowRight className="w-4 h-4" />
                             </Link>
@@ -315,11 +315,11 @@ export default function LandingPage() {
                             </div>
 
                             <div className="flex flex-col sm:flex-row gap-4">
-                                <Link href="/dashboard" className="inline-flex items-center justify-center gap-2 bg-[#1a2a3a] hover:bg-slate-800 text-white font-bold text-[15px] px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-xl">
+                                <Link href="/workspace" className="inline-flex items-center justify-center gap-2 bg-[#1a2a3a] hover:bg-slate-800 text-white font-bold text-[15px] px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-xl">
                                     Register for 2026 Beta
                                     <ArrowRight className="w-4 h-4" />
                                 </Link>
-                                <Link href="/dashboard" className="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-[#1a2a3a] border border-slate-200 font-bold text-[15px] px-8 py-4 rounded-xl transition-all">
+                                <Link href="/workspace" className="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-[#1a2a3a] border border-slate-200 font-bold text-[15px] px-8 py-4 rounded-xl transition-all">
                                     View Demo Dashboard
                                 </Link>
                             </div>
@@ -516,7 +516,7 @@ export default function LandingPage() {
                         Get AI speed and volume with Human-in-the-Loop control. Designed for Regulation.
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center gap-3">
-                        <Link href="/dashboard" className="inline-flex items-center justify-center gap-2 bg-white hover:bg-[#f0f5fa] text-[#1a5276] font-semibold text-[15px] px-8 py-3.5 rounded-xl transition-all no-underline shadow-md hover:shadow-lg">
+                        <Link href="/workspace" className="inline-flex items-center justify-center gap-2 bg-white hover:bg-[#f0f5fa] text-[#1a5276] font-semibold text-[15px] px-8 py-3.5 rounded-xl transition-all no-underline shadow-md hover:shadow-lg">
                             Get Started
                             <ArrowRight className="w-4 h-4" />
                         </Link>

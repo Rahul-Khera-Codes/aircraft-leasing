@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useWorkspacePrefix } from "@/lib/workspace";
 import { Bell, Search, Plane, AlertTriangle, Activity, X, Loader2 } from "lucide-react";
 
 interface SearchResult {
@@ -21,6 +22,7 @@ interface HeaderProps {
 
 export default function Header({ title, subtitle, children }: HeaderProps) {
     const router = useRouter();
+    const ws = useWorkspacePrefix();
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<SearchResult[]>([]);
     const [loading, setLoading] = useState(false);
@@ -102,7 +104,9 @@ export default function Header({ title, subtitle, children }: HeaderProps) {
         setOpen(false);
         setQuery("");
         setResults([]);
-        router.push(result.href);
+        // Prefix workspace slug so search results navigate within the current workspace
+        const href = result.href.startsWith("/") ? `${ws}${result.href}` : result.href;
+        router.push(href);
     }
 
     function getTypeIcon(type: string) {

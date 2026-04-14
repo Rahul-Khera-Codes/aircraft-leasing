@@ -4,31 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-    LayoutDashboard,
-    Plane,
-    Gauge,
     ChevronLeft,
     ChevronRight,
-    ShieldCheck,
-    Radio,
-    Plug,
-    Box,
-    Globe,
+    ArrowLeftRight,
 } from "lucide-react";
-
-const mainNavItems = [
-    { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { href: "/fleet", icon: Plane, label: "Fleet" },
-    { href: "/engine-health", icon: Gauge, label: "Engines" },
-    { href: "/llp", icon: ShieldCheck, label: "Life Limited Parts" },
-    { href: "/aircraft", icon: Plane, label: "Aircraft" },
-    { href: "/drone-compliance", icon: Box, label: "Drone Trace" },
-];
-
-const secondaryNavItems = [
-    { href: "/integrations", icon: Plug, label: "Integrations" },
-    { href: "/adsb", icon: Radio, label: "Live Traffic" },
-];
+import {
+    WORKSPACES,
+    workspaceFromPath,
+    type WorkspaceSlug,
+} from "@/lib/workspace";
 
 interface SidebarProps {
     collapsed: boolean;
@@ -37,10 +21,14 @@ interface SidebarProps {
 
 export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
     const pathname = usePathname();
+    const wsSlug: WorkspaceSlug = workspaceFromPath(pathname);
+    const ws = WORKSPACES[wsSlug];
+    const prefix = `/${wsSlug}`;
 
-    const isActive = (href: string) => {
-        if (href === "/dashboard") return pathname === "/dashboard";
-        return pathname.startsWith(href);
+    const isActive = (relHref: string) => {
+        const full = `${prefix}${relHref}`;
+        if (relHref === "/dashboard") return pathname === full;
+        return pathname.startsWith(full);
     };
 
     return (
@@ -49,34 +37,67 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
             animate={{ width: collapsed ? 72 : 240 }}
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
         >
+            {/* Logo */}
             <div className={`flex items-center justify-center ${collapsed ? "min-h-[72px]" : "min-h-[110px]"} px-2 overflow-hidden`}>
                 <Link href="/" className="flex items-center justify-center no-underline w-full h-full">
-                    <img 
-                        src="/images/origintraceLogo.png" 
-                        alt="OriginTrace Logo" 
+                    <img
+                        src="/images/origintraceLogo.png"
+                        alt="OriginTrace Logo"
                         className={`${collapsed ? "w-16 h-16" : "w-full h-auto max-h-[80px]"} object-contain scale-[2.2] transition-transform duration-300 hover:scale-[1.5]`}
                     />
                 </Link>
             </div>
 
-            {/* Navigation Section */}
+            {/* Workspace badge */}
+            {!collapsed && (
+                <div className="px-4 mb-2">
+                    <Link
+                        href="/workspace"
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100/80 border border-slate-200/60 hover:border-slate-300 transition-all no-underline group"
+                    >
+                        <div
+                            className="w-6 h-6 rounded-md flex items-center justify-center text-white text-[10px] font-bold"
+                            style={{ backgroundColor: ws.accentHex }}
+                        >
+                            {ws.shortLabel}
+                        </div>
+                        <span className="text-[12px] font-semibold text-slate-600 flex-1 truncate">{ws.label}</span>
+                        <ArrowLeftRight size={12} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+                    </Link>
+                </div>
+            )}
+            {collapsed && (
+                <div className="flex justify-center mb-2">
+                    <Link
+                        href="/workspace"
+                        className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-[10px] font-bold no-underline hover:opacity-80 transition-opacity"
+                        style={{ backgroundColor: ws.accentHex }}
+                        title={`${ws.label} — Switch workspace`}
+                    >
+                        {ws.shortLabel}
+                    </Link>
+                </div>
+            )}
+
+            {/* Navigation */}
             <nav className="flex-1 px-3 overflow-y-auto modern-scrollbar">
                 <div className="space-y-1">
                     {!collapsed && (
                         <span className="block px-4 mb-3 text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em]">Main Menu</span>
                     )}
                     <ul className="list-none m-0 p-0 space-y-1">
-                        {mainNavItems.map((item) => {
+                        {ws.mainNav.map((item) => {
                             const active = isActive(item.href);
                             return (
                                 <li key={item.label}>
                                     <Link
-                                        href={item.href}
+                                        href={`${prefix}${item.href}`}
                                         className={`group relative flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-200 ${
                                             active
-                                                ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
+                                                ? "text-white shadow-lg"
                                                 : "text-slate-500 hover:bg-blue-50 hover:text-blue-600"
                                         }`}
+                                        style={active ? { backgroundColor: ws.accentHex, boxShadow: `0 10px 15px -3px ${ws.accentHex}33` } : undefined}
                                     >
                                         <item.icon size={19} className={`shrink-0 transition-transform group-hover:scale-110 ${active ? "text-white" : "text-slate-400 group-hover:text-blue-500"}`} />
                                         {!collapsed && (
@@ -91,18 +112,19 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
                                         {active && !collapsed && (
                                             <motion.div
                                                 layoutId="active-indicator"
-                                                className="absolute right-3 w-1.5 h-1.5 rounded-full bg-blue-200"
+                                                className="absolute right-3 w-1.5 h-1.5 rounded-full bg-white/60"
                                             />
                                         )}
                                     </Link>
                                 </li>
                             );
                         })}
-                        {/* Secondary items – just below Aircraft, grey / de-emphasized */}
-                        {secondaryNavItems.map((item) => (
+
+                        {/* Secondary items */}
+                        {ws.secondaryNav.map((item) => (
                             <li key={item.label}>
                                 <Link
-                                    href={item.href}
+                                    href={`${prefix}${item.href}`}
                                     className={`group relative flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-200 ${
                                         isActive(item.href)
                                             ? "bg-slate-500/90 text-white"
