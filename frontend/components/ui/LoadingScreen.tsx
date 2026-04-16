@@ -1,12 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ShieldCheck, Zap } from "lucide-react";
-
-/**
- * Corporate Standard Loading Screen for OriginTrace.ai
- * Focuses on professional branding, due diligence, and high-end typography.
- */
 
 function CloudSVG({ className }: { className?: string }) {
     return (
@@ -53,20 +47,19 @@ export default function LoadingScreen() {
                 >
                     {/* Brand Identity Section */}
                     <div className="mb-12 space-y-6">
-                        {/* Animated Brand Pulse */}
+                        {/* OriginTrace Logo */}
                         <motion.div
-                            className="inline-flex items-center justify-center w-20 h-20 mb-4 bg-white rounded-3xl shadow-xl border border-sky-100"
+                            className="inline-flex items-center justify-center mb-4"
                             animate={{
-                                scale: [1, 1.05, 1],
-                                boxShadow: [
-                                    "0 0 0 0 rgba(7, 89, 133, 0.1)",
-                                    "0 0 0 20px rgba(7, 89, 133, 0)",
-                                    "0 0 0 0 rgba(7, 89, 133, 0)"
-                                ]
+                                scale: [1, 1.03, 1],
                             }}
                             transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
                         >
-                            <ShieldCheck className="w-10 h-10 text-sky-600" />
+                            <img
+                                src="/images/origintraceLogo.png"
+                                alt="OriginTrace.AI"
+                                className="h-16 w-auto object-contain"
+                            />
                         </motion.div>
 
                         <div className="space-y-4">
@@ -77,19 +70,7 @@ export default function LoadingScreen() {
                                 className="flex items-center justify-center gap-2"
                             >
                                 <span className="text-4xl font-extrabold tracking-tight text-sky-950">
-                                    OriginTrace<span className="text-sky-500">.ai</span>
-                                </span>
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.4 }}
-                                className="inline-flex items-center gap-2 px-4 py-1.5 bg-sky-950/5 rounded-full border border-sky-950/10"
-                            >
-                                <Zap className="w-3.5 h-3.5 text-sky-600" />
-                                <span className="text-[11px] font-bold uppercase tracking-widest text-sky-800">
-                                    Due Diligence Suite
+                                    OriginTrace<span className="text-sky-500">.AI</span>
                                 </span>
                             </motion.div>
                         </div>
@@ -103,7 +84,7 @@ export default function LoadingScreen() {
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.6 }}
                         >
-                            Initializing technical audit framework...
+                            Initialising...
                         </motion.p>
 
                         {/* Premium Corporate Progress Indicator */}
@@ -128,10 +109,6 @@ export default function LoadingScreen() {
                     <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-50" />
                 </motion.div>
             </div>
-
-            <style jsx>{`
-        /* Custom styles if needed for standard components */
-      `}</style>
         </div>
     );
 }

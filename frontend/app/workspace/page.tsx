@@ -2,28 +2,34 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Plane, Box, ArrowRight, ChevronLeft } from "lucide-react";
+import { Plane, ArrowRight, ChevronLeft } from "lucide-react";
 import { WORKSPACES, type WorkspaceSlug } from "@/lib/workspace";
 
-/* ── Helicopter SVG icon (lucide doesn't include one) ── */
+/* ── Helicopter SVG icon — side profile ── */
 function HelicopterIcon({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.8}
+      strokeWidth={1.7}
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
     >
-      <path d="M4 11h16" />
-      <path d="M12 2v9" />
-      <path d="M6 2h12" />
-      <path d="M12 11c0 0-4 2-4 5v1a1 1 0 001 1h6a1 1 0 001-1v-1c0-3-4-5-4-5z" />
-      <path d="M9 18v2" />
-      <path d="M15 18v2" />
-      <path d="M7 20h10" />
+      {/* Main rotor */}
+      <path d="M2 4h20" />
+      <path d="M12 4v4" />
+      {/* Fuselage — side profile */}
+      <path d="M5 8h12a3 3 0 0 1 3 3v1H5a3 3 0 0 1-3-3v0a1 1 0 0 1 1-1z" />
+      {/* Tail boom */}
+      <path d="M5 12l-2 4h4" />
+      {/* Tail rotor */}
+      <path d="M3 14v4" />
+      {/* Skids */}
+      <path d="M8 12v3" />
+      <path d="M15 12v3" />
+      <path d="M6 15h12" />
     </svg>
   );
 }
@@ -87,7 +93,7 @@ const CARD_CONFIG: Record<WorkspaceSlug, {
     hoverBorder: "hover:border-violet-400",
     iconBg: "bg-violet-600",
     accentText: "text-violet-600",
-    tag: "Drones & UAVs",
+    tag: "Drone & UAV",
   },
 };
 
@@ -109,35 +115,32 @@ export default function WorkspaceSelectorPage() {
     <div className="min-h-screen bg-gradient-to-b from-[#f0f5fa] via-white to-[#f8fafb] flex flex-col"
       style={{ fontFamily: "var(--font-geist-sans, 'Manrope', system-ui, sans-serif)" }}
     >
-      {/* Top bar */}
-      <nav className="w-full px-6 py-5 flex items-center justify-between max-w-[1200px] mx-auto">
-        <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-slate-600 transition-colors no-underline text-[13px] font-medium">
+      {/* Top bar — back link left, centred logo */}
+      <nav className="w-full px-6 py-5 max-w-[1200px] mx-auto relative flex items-center justify-center">
+        <Link href="/" className="absolute left-6 flex items-center gap-2 text-slate-400 hover:text-slate-600 transition-colors no-underline text-[13px] font-medium">
           <ChevronLeft className="w-4 h-4" />
           Back to Home
         </Link>
         <img
           src="/images/origintraceLogo.png"
           alt="OriginTrace Logo"
-          className="h-10 w-auto object-contain"
+          className="h-14 w-auto object-contain"
         />
       </nav>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 pb-20 -mt-8">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 pb-20 -mt-4">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          className="text-center mb-14"
         >
-          <p className="text-[11px] font-bold text-[#2980b9] uppercase tracking-[0.2em] mb-3">
-            OriginTrace.AI Platform
-          </p>
-          <h1 className="text-[36px] md:text-[48px] font-extrabold text-[#1a2a3a] tracking-tight mb-4">
+          <h1 className="text-[48px] md:text-[64px] lg:text-[72px] font-extrabold text-[#1a2a3a] tracking-tight mb-4 leading-[1.05]">
             Select Your Workspace
           </h1>
-          <p className="text-[16px] text-[#5a6b7d] max-w-[480px] mx-auto leading-relaxed font-medium">
-            Choose an aviation sector to access its dedicated dashboard, fleet management, and analytics tools.
+          <p className="text-[15px] text-[#5a6b7d] max-w-[420px] mx-auto leading-relaxed font-medium">
+            Choose a sector to access its dashboard, fleet management, and analytics tools.
           </p>
         </motion.div>
 
@@ -192,10 +195,10 @@ export default function WorkspaceSelectorPage() {
         </motion.div>
       </div>
 
-      {/* Footer */}
-      <div className="text-center pb-8">
-        <p className="text-[12px] text-slate-400 font-medium">
-          OriginTrace.AI &mdash; Aircraft Records Risk Intelligence
+      {/* Footer — company tagline */}
+      <div className="text-center pb-10 px-6">
+        <p className="text-[13px] text-slate-400 font-medium max-w-[600px] mx-auto leading-relaxed">
+          OriginTrace.AI &mdash; Immutable record layer and AI decision engine for aviation asset risk intelligence.
         </p>
       </div>
     </div>
