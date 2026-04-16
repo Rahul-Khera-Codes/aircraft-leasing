@@ -5,31 +5,36 @@ import { motion } from "framer-motion";
 import { Plane, ArrowRight, ChevronLeft } from "lucide-react";
 import { WORKSPACES, type WorkspaceSlug } from "@/lib/workspace";
 
-/* ── Helicopter SVG icon — side profile ── */
+/* ── Helicopter SVG icon — proper side-profile with rotor blades, cabin, tail ── */
 function HelicopterIcon({ className }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 24 24"
+      viewBox="0 0 64 40"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.7}
+      strokeWidth={2.2}
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
     >
-      {/* Main rotor */}
-      <path d="M2 4h20" />
-      <path d="M12 4v4" />
-      {/* Fuselage — side profile */}
-      <path d="M5 8h12a3 3 0 0 1 3 3v1H5a3 3 0 0 1-3-3v0a1 1 0 0 1 1-1z" />
+      {/* Main rotor blades */}
+      <line x1="8" y1="6" x2="56" y2="6" />
+      {/* Rotor mast */}
+      <line x1="32" y1="6" x2="32" y2="13" />
+      {/* Cockpit / cabin — rounded side-profile shape */}
+      <path d="M18 13 h22 a6 6 0 0 1 6 6 v2 a4 4 0 0 1-4 4 H18 a8 8 0 0 1-8-8 v0 a4 4 0 0 1 4-4 z" />
+      {/* Windscreen detail */}
+      <path d="M14 17 a4 4 0 0 1 4-4 h3 v8 h-3 a4 4 0 0 1-4-4z" strokeWidth={1.5} opacity={0.6} />
       {/* Tail boom */}
-      <path d="M5 12l-2 4h4" />
-      {/* Tail rotor */}
-      <path d="M3 14v4" />
-      {/* Skids */}
-      <path d="M8 12v3" />
-      <path d="M15 12v3" />
-      <path d="M6 15h12" />
+      <line x1="42" y1="20" x2="56" y2="16" />
+      {/* Tail fin */}
+      <line x1="54" y1="10" x2="56" y2="16" />
+      <line x1="56" y1="16" x2="58" y2="18" />
+      {/* Skid gear — left */}
+      <line x1="18" y1="25" x2="18" y2="29" />
+      <line x1="34" y1="25" x2="34" y2="29" />
+      {/* Skid rails */}
+      <line x1="14" y1="29" x2="38" y2="29" />
     </svg>
   );
 }
@@ -78,7 +83,7 @@ const CARD_CONFIG: Record<WorkspaceSlug, {
     tag: "Commercial & Cargo",
   },
   "rotary-wing": {
-    icon: <HelicopterIcon className="w-8 h-8" />,
+    icon: <HelicopterIcon className="w-9 h-9" />,
     gradient: "from-emerald-50 to-emerald-100/50",
     border: "border-emerald-200/60",
     hoverBorder: "hover:border-emerald-400",
@@ -115,31 +120,34 @@ export default function WorkspaceSelectorPage() {
     <div className="min-h-screen bg-gradient-to-b from-[#f0f5fa] via-white to-[#f8fafb] flex flex-col"
       style={{ fontFamily: "var(--font-geist-sans, 'Manrope', system-ui, sans-serif)" }}
     >
-      {/* Top bar — back link left, centred logo */}
-      <nav className="w-full px-6 py-5 max-w-[1200px] mx-auto relative flex items-center justify-center">
-        <Link href="/" className="absolute left-6 flex items-center gap-2 text-slate-400 hover:text-slate-600 transition-colors no-underline text-[13px] font-medium">
+      {/* Top bar — back link left only (logo is below as hero) */}
+      <nav className="w-full px-6 py-4 max-w-[1200px] mx-auto flex items-center">
+        <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-slate-600 transition-colors no-underline text-[13px] font-medium">
           <ChevronLeft className="w-4 h-4" />
           Back to Home
         </Link>
-        <img
-          src="/images/origintraceLogo.png"
-          alt="OriginTrace Logo"
-          className="h-14 w-auto object-contain"
-        />
       </nav>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 pb-20 -mt-4">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 pb-16">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-14"
+          className="text-center mb-12"
         >
-          <h1 className="text-[48px] md:text-[64px] lg:text-[72px] font-extrabold text-[#1a2a3a] tracking-tight mb-4 leading-[1.05]">
+          {/* Big centred logo */}
+          <img
+            src="/images/origintraceLogo.png"
+            alt="OriginTrace.AI"
+            className="h-24 md:h-32 w-auto object-contain mx-auto mb-8"
+          />
+
+          {/* Heading — smaller than logo, with breathing room */}
+          <h1 className="text-[28px] md:text-[36px] lg:text-[42px] font-extrabold text-[#1a2a3a] tracking-tight mb-3 leading-[1.1]">
             Select Your Workspace
           </h1>
-          <p className="text-[15px] text-[#5a6b7d] max-w-[420px] mx-auto leading-relaxed font-medium">
+          <p className="text-[14px] text-[#5a6b7d] max-w-[400px] mx-auto leading-relaxed font-medium">
             Choose a sector to access its dashboard, fleet management, and analytics tools.
           </p>
         </motion.div>
@@ -195,11 +203,20 @@ export default function WorkspaceSelectorPage() {
         </motion.div>
       </div>
 
-      {/* Footer — company tagline */}
+      {/* Footer — expanded company description */}
       <div className="text-center pb-10 px-6">
-        <p className="text-[13px] text-slate-400 font-medium max-w-[600px] mx-auto leading-relaxed">
-          OriginTrace.AI &mdash; Immutable record layer and AI decision engine for aviation asset risk intelligence.
-        </p>
+        <div className="max-w-[720px] mx-auto space-y-2">
+          <p className="text-[13px] text-slate-500 font-semibold">
+            OriginTrace.AI &mdash; Aircraft Records Risk Intelligence
+          </p>
+          <p className="text-[12px] text-slate-400 leading-relaxed">
+            OriginTrace captures high-value aviation asset history in permanent digital form.
+            Our proprietary AI decision engine analyses maintenance records, shop visit reports,
+            and airworthiness directives at speed and volume &mdash; with human-in-the-loop
+            verification and control. An immutable record layer provides full traceability,
+            compliance, and audit-readiness across fixed-wing, rotary-wing, and uncrewed platforms.
+          </p>
+        </div>
       </div>
     </div>
   );
