@@ -23,6 +23,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
     const pathname = usePathname();
     const wsSlug: WorkspaceSlug = workspaceFromPath(pathname);
     const ws = WORKSPACES[wsSlug];
+    const c = ws.colors;
     const prefix = `/${wsSlug}`;
 
     const isActive = (relHref: string) => {
@@ -95,11 +96,11 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
                                         className={`group relative flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-200 ${
                                             active
                                                 ? "text-white shadow-lg"
-                                                : "text-slate-500 hover:bg-blue-50 hover:text-blue-600"
+                                                : `text-slate-500 ${c.hoverBg} ${c.textHover}`
                                         }`}
                                         style={active ? { backgroundColor: ws.accentHex, boxShadow: `0 10px 15px -3px ${ws.accentHex}33` } : undefined}
                                     >
-                                        <item.icon size={19} className={`shrink-0 transition-transform group-hover:scale-110 ${active ? "text-white" : "text-slate-400 group-hover:text-blue-500"}`} />
+                                        <item.icon size={19} className={`shrink-0 transition-transform group-hover:scale-110 ${active ? "text-white" : `text-slate-400 group-hover:${c.textLight}`}`} />
                                         {!collapsed && (
                                             <motion.span
                                                 className="text-[13.5px] font-semibold whitespace-nowrap"
@@ -163,8 +164,8 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
                     <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest px-2">Collapse Sidebar</span>
                 )}
                 <button
-                    className={`flex items-center justify-center rounded-xl border border-slate-100 hover:bg-blue-50 transition-all ${
-                        collapsed ? "w-10 h-10 text-slate-400 hover:text-blue-600" : "w-8 h-8 text-slate-400 hover:text-blue-600"
+                    className={`flex items-center justify-center rounded-xl border border-slate-100 ${c.hoverBg} transition-all ${
+                        collapsed ? `w-10 h-10 text-slate-400 ${c.textHover}` : `w-8 h-8 text-slate-400 ${c.textHover}`
                     }`}
                     onClick={onToggle}
                     title={collapsed ? "Expand" : "Collapse"}

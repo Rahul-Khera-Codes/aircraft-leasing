@@ -71,3 +71,37 @@ export async function GET(
         );
     }
 }
+
+export async function DELETE(
+    _request: Request,
+    { params }: { params: Promise<{ caseId: string }> }
+) {
+    const { caseId: encodedCaseId } = await params;
+    const caseId = encodedCaseId ? decodeURIComponent(encodedCaseId) : "";
+    if (!caseId) {
+        return NextResponse.json({ error: "Case not found" }, { status: 404 });
+    }
+    try {
+        // Delete related records in dependency order, then the case itself.
+        await query(
+            `DELETE FROM ${qual("finding_feedback")}
+             WHERE finding_id IN (
+                 SELECT id FROM ${qual("findings")} WHERE case_id = $1
+             )`,
+            [caseId]
+        );
+        await query(`DELETE FROM ${qual("findings")} WHERE case_id = $1`, [caseId]);
+        await query(`DELETE FROM ${qual("documents")} WHERE case_id = $1`, [caseId]);
+        await query(`DELETE FROM ${qual("engine_data")} WHERE case_id = $1`, [caseId]);
+        await query(`DELETE FROM ${qual("llp_parts")} WHERE case_id = $1`, [caseId]);
+        await query(`DELETE FROM ${qual("cases")} WHERE case_id = $1`, [caseId]);
+
+        return NextResponse.json({ success: true });
+    } catch (err) {
+        console.error("Case delete error:", err);
+        return NextResponse.json(
+            { error: "Failed to delete case" },
+            { status: 500 }
+        );
+    }
+}

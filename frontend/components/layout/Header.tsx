@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useWorkspacePrefix } from "@/lib/workspace";
+import { useWorkspacePrefix, useWorkspaceColors } from "@/lib/workspace";
 import { Bell, Search, Plane, AlertTriangle, Activity, X, Loader2 } from "lucide-react";
 
 interface SearchResult {
@@ -23,6 +23,7 @@ interface HeaderProps {
 export default function Header({ title, subtitle, children }: HeaderProps) {
     const router = useRouter();
     const ws = useWorkspacePrefix();
+    const c = useWorkspaceColors();
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<SearchResult[]>([]);
     const [loading, setLoading] = useState(false);
@@ -128,7 +129,7 @@ export default function Header({ title, subtitle, children }: HeaderProps) {
     }
 
     return (
-        <header className="flex items-center justify-between px-10 h-[72px] bg-white/70 backdrop-blur-xl sticky top-0 z-40 border-b border-blue-100/50 -mt-6 -mx-8 mb-6">
+        <header className={`flex items-center justify-between px-10 h-[72px] bg-white/70 backdrop-blur-xl sticky top-0 z-40 border-b ${c.border}/50 -mt-6 -mx-8 mb-6`}>
             <div className="flex flex-col">
                 <h1 className="text-[17px] font-semibold text-slate-900 tracking-tight leading-none mb-1">{title}</h1>
                 {subtitle && <p className="text-[12px] text-slate-400 font-medium">{subtitle}</p>}
@@ -137,7 +138,7 @@ export default function Header({ title, subtitle, children }: HeaderProps) {
                 {children}
                 <div className="relative group" ref={wrapperRef}>
                     <div className="relative flex items-center">
-                        <Search size={15} className={`absolute left-4 transition-colors ${open ? "text-blue-600" : "text-slate-400 group-hover:text-blue-500"}`} />
+                        <Search size={15} className={`absolute left-4 transition-colors ${open ? c.text : `text-slate-400 group-hover:${c.textLight}`}`} />
                         <input
                             ref={inputRef}
                             type="text"
@@ -151,17 +152,17 @@ export default function Header({ title, subtitle, children }: HeaderProps) {
                             }}
                             onKeyDown={handleKeyDown}
                             placeholder="Search by Registration, Case ID, or Finding type..."
-                            className="bg-blue-50/40 border border-blue-100 rounded-xl text-slate-900 py-3 px-12 text-[13px] w-[360px] outline-none transition-all focus:bg-white focus:border-blue-300 focus:ring-4 focus:ring-blue-600/5 focus:w-[420px] placeholder:text-slate-400 font-medium shadow-sm"
+                            className={`${c.bgLight}/40 border ${c.border} rounded-xl text-slate-900 py-3 px-12 text-[13px] w-[360px] outline-none transition-all focus:bg-white focus:border-blue-300 focus:ring-4 ${c.ring} focus:w-[420px] placeholder:text-slate-400 font-medium shadow-sm`}
                             id="global-search"
                             autoComplete="off"
                         />
 
                         {loading && (
-                            <Loader2 size={14} className="absolute right-2.5 text-blue-600 animate-spin" />
+                            <Loader2 size={14} className={`absolute right-2.5 ${c.text} animate-spin`} />
                         )}
                         {query && !loading && (
                             <button
-                                className="absolute right-2 text-slate-300 hover:text-blue-600 bg-transparent border-0 p-1 cursor-pointer rounded-sm flex items-center justify-center transition-all hover:bg-blue-50"
+                                className={`absolute right-2 text-slate-300 hover:${c.text} bg-transparent border-0 p-1 cursor-pointer rounded-sm flex items-center justify-center transition-all ${c.hoverBg}`}
                                 onClick={() => {
                                     setQuery("");
                                     setResults([]);
@@ -177,26 +178,26 @@ export default function Header({ title, subtitle, children }: HeaderProps) {
 
                     {/* Dropdown */}
                     {open && (
-                        <div className="absolute top-[calc(100%+8px)] right-0 w-[340px] bg-white border border-blue-100 rounded-xl shadow-2xl overflow-hidden z-50 origin-top-right animate-in fade-in zoom-in-95 duration-150">
+                        <div className={`absolute top-[calc(100%+8px)] right-0 w-[340px] bg-white border ${c.border} rounded-xl shadow-2xl overflow-hidden z-50 origin-top-right animate-in fade-in zoom-in-95 duration-150`}>
                             {results.length === 0 && !loading ? (
                                 <div className="p-8 text-center text-slate-400 text-[13px] flex flex-col items-center gap-2 font-medium">
-                                    <Search size={18} className="text-blue-100" />
+                                    <Search size={18} className={c.border} />
                                     <span>No results for &ldquo;{query}&rdquo;</span>
                                 </div>
                             ) : (
                                 <>
-                                    <div className="px-3.5 py-2.5 text-[11px] font-semibold text-slate-400 uppercase tracking-widest bg-blue-50/50 border-b border-blue-50">
+                                    <div className={`px-3.5 py-2.5 text-[11px] font-semibold text-slate-400 uppercase tracking-widest ${c.bgLight}/50 border-b ${c.bgLight}`}>
                                         {results.length} result{results.length !== 1 ? "s" : ""}
                                     </div>
                                     <div className="max-h-[380px] overflow-y-auto overflow-x-hidden modern-scrollbar">
                                         {results.map((result, i) => (
                                             <button
                                                 key={`${result.type}-${result.id}`}
-                                                className={`w-full flex items-start gap-3 px-3.5 py-3 bg-transparent border-0 border-b border-blue-50 last:border-b-0 cursor-pointer text-left transition-all hover:bg-blue-50 ${i === activeIndex ? "bg-blue-50" : ""}`}
+                                                className={`w-full flex items-start gap-3 px-3.5 py-3 bg-transparent border-0 border-b ${c.bgLight} last:border-b-0 cursor-pointer text-left transition-all ${c.hoverBg} ${i === activeIndex ? c.bgLight : ""}`}
                                                 onClick={() => navigateTo(result)}
                                                 onMouseEnter={() => setActiveIndex(i)}
                                             >
-                                                <div className="text-blue-400 flex items-center justify-center w-7 h-7 bg-blue-50 rounded-md shrink-0 border border-blue-100">
+                                                <div className={`${c.textLight} flex items-center justify-center w-7 h-7 ${c.bgLight} rounded-md shrink-0 border ${c.border}`}>
                                                     {getTypeIcon(result.type)}
                                                 </div>
                                                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
@@ -207,7 +208,7 @@ export default function Header({ title, subtitle, children }: HeaderProps) {
                                                         {result.subtitle}
                                                     </span>
                                                 </div>
-                                                <span className="text-[10px] font-semibold text-blue-400 uppercase tracking-widest shrink-0 mt-0.5">
+                                                <span className={`text-[10px] font-semibold ${c.textLight} uppercase tracking-widest shrink-0 mt-0.5`}>
                                                     {getTypeLabel(result.type)}
                                                 </span>
                                             </button>

@@ -11,6 +11,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import FileUploader from "@/components/dashboard/FileUploader";
 import AnalysisReport from "@/components/dashboard/AnalysisReport";
 import { apiFetch, formatConfidence, truncate } from "@/lib/utils";
+import { useWorkspaceColors } from "@/lib/workspace";
 import type { FindingSeverity } from "@/lib/types";
 import {
   Plane,
@@ -51,6 +52,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { workspace } = useParams<{ workspace: string }>();
   const ws = `/${workspace}`;
+  const c = useWorkspaceColors();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -119,7 +121,7 @@ export default function DashboardPage() {
         {view === "dashboard" ? (
           <button
             onClick={() => setView("upload")}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all cursor-pointer"
+            className={`flex items-center gap-2 px-4 py-2 ${c.bg} text-white rounded-xl text-sm font-bold shadow-lg ${c.shadow} ${c.bgHover} transition-all cursor-pointer`}
           >
             <Upload size={18} />
             New Analysis
@@ -171,7 +173,7 @@ export default function DashboardPage() {
             >
               <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 relative overflow-hidden group">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><Plane size={22} /></div>
+                  <div className={`w-12 h-12 rounded-2xl ${c.bgLight} ${c.text} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}><Plane size={22} /></div>
                   <div>
                     <span className="block text-2xl font-semibold text-slate-900 leading-none tracking-tight mb-1">{data.total_cases}</span>
                     <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Assets</span>
@@ -244,13 +246,13 @@ export default function DashboardPage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.25, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               >
-                <div className="p-8 bg-slate-200/40 rounded-3xl border border-slate-400/40 relative overflow-hidden backdrop-blur-sm shadow-xl shadow-blue-900/5">
+                <div className={`p-8 bg-slate-200/40 rounded-3xl border border-slate-400/40 relative overflow-hidden backdrop-blur-sm shadow-xl ${c.shadow}`}>
                   {/* Subtle radial glow background */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-400/5 blur-[80px] pointer-events-none rounded-full" />
+                  <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 ${c.bgLight} blur-[80px] pointer-events-none rounded-full`} />
                   
                   <div className="flex items-center justify-between mb-8 relative z-10">
                     <div className="flex items-center gap-2.5">
-                      <div className="p-2 rounded-lg bg-blue-600/10 text-blue-600 border border-blue-600/20 shadow-sm"><BarChart3 size={16} /></div>
+                      <div className={`p-2 rounded-lg ${c.bgLight} ${c.text} border ${c.border} shadow-sm`}><BarChart3 size={16} /></div>
                       <h3 className="text-[14px] font-bold text-slate-900 uppercase tracking-widest">Risk Profile</h3>
                     </div>
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase tracking-wider border border-emerald-100/50 shadow-sm">
@@ -290,7 +292,7 @@ export default function DashboardPage() {
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none group">
                       <div className="relative">
                          <span className="block text-4xl font-black text-slate-900 leading-none tracking-tighter mb-1 drop-shadow-sm">{data.total_findings}</span>
-                         <div className="absolute -inset-2 bg-blue-400/10 blur-xl opacity-0 transition-opacity" />
+                         <div className={`absolute -inset-2 ${c.bgLight} blur-xl opacity-0 transition-opacity`} />
                       </div>
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Findings</span>
                     </div>
@@ -305,7 +307,7 @@ export default function DashboardPage() {
                           key={sev}
                           whileHover={{ y: -2, scale: 1.02 }}
                           transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                          className="flex flex-col p-3.5 rounded-2xl border border-slate-200/60 bg-white/70 backdrop-blur-md shadow-sm hover:shadow-md hover:border-blue-200 transition-all cursor-pointer group overflow-hidden relative"
+                          className={`flex flex-col p-3.5 rounded-2xl border border-slate-200/60 bg-white/70 backdrop-blur-md shadow-sm hover:shadow-md hover:${c.border} transition-all cursor-pointer group overflow-hidden relative`}
                         >
                           {/* Severity colored accent indicator */}
                           <div className="absolute left-0 top-0 bottom-0 w-1 opacity-60 group-hover:opacity-100 transition-opacity" style={{ backgroundColor: sevColors[sev].bar }} />
@@ -338,11 +340,11 @@ export default function DashboardPage() {
 
                 <div className="p-6 bg-slate-200/40 border border-slate-200/60 rounded-2xl shadow-sm">
                    <div className="flex items-center gap-3 mb-4">
-                     <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center"><Zap size={16} className="text-blue-400" /></div>
-                     <span className="text-[16px] font-bold uppercase tracking-widest text-blue-600">Fleet Health</span>
+                     <div className={`w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center`}><Zap size={16} className={c.textLight} /></div>
+                     <span className={`text-[16px] font-bold uppercase tracking-widest ${c.text}`}>Fleet Health</span>
                    </div>
-                   <p className="text-[15px] text-blue-600 leading-relaxed font-bold mb-6">
-                     Your fleet is currently operating at <span className={`text-blue-600 font-black underline ${efficiencyColor}`}>{efficiency}% technical efficiency</span>. Review critical findings to improve score.
+                   <p className={`text-[15px] ${c.text} leading-relaxed font-bold mb-6`}>
+                     Your fleet is currently operating at <span className={`${c.text} font-black underline ${efficiencyColor}`}>{efficiency}% technical efficiency</span>. Review critical findings to improve score.
                    </p>
                    <Link href={`${ws}/fleet`} className="inline-flex items-center justify-center px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white rounded-lg text-[12px] font-bold transition-all uppercase tracking-wider shadow-lg shadow-emerald-500/20">
                      View detailed report
@@ -359,17 +361,17 @@ export default function DashboardPage() {
                 <div className="bg-slate-200/40 border border-slate-400/40 rounded-3xl shadow-sm h-full flex flex-col overflow-hidden">
                   <div className="flex items-center justify-between p-8 border-b border-slate-50">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-blue-50 text-blue-500"><Clock size={16} /></div>
+                      <div className={`p-2 rounded-lg ${c.bgLight} ${c.textLight}`}><Clock size={16} /></div>
                       <h3 className="text-[13px] font-bold text-slate-900 uppercase tracking-wider">Recent Technical Findings</h3>
                     </div>
-                    <Link href={`${ws}/findings`} className="text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors uppercase tracking-widest">
+                    <Link href={`${ws}/findings`} className={`text-[11px] font-bold text-slate-400 ${c.textHover} transition-colors uppercase tracking-widest`}>
                       Full feed <ArrowRight size={12} className="inline ml-1" />
                     </Link>
                   </div>
 
                   {data.recent_findings.length === 0 ? (
                     <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
-                      <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center text-blue-200 mb-4"><Plane size={32} /></div>
+                      <div className={`w-16 h-16 rounded-full ${c.bgLight} flex items-center justify-center ${c.textLight} mb-4`}><Plane size={32} /></div>
                       <h4 className="text-[15px] font-bold text-slate-900 mb-1">All clear at the moment</h4>
                       <p className="text-[13px] text-slate-400 max-w-xs font-medium">No technical findings have been reported in the last 7 days.</p>
                     </div>
@@ -382,10 +384,10 @@ export default function DashboardPage() {
                           return 0;
                         })
                         .map((f, i) => (
-                        <Link key={f.id} href={`${ws}/cases/${f.case_id}`} className="block group p-8 hover:bg-blue-50/30 transition-all">
+                        <Link key={f.id} href={`${ws}/cases/${f.case_id}`} className={`block group p-8 ${c.hoverBg} transition-all`}>
                           <div className="flex items-start justify-between gap-4 mb-2">
                             <div className="space-y-1">
-                              <p className="text-[15px] font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">{f.title}</p>
+                              <p className={`text-[15px] font-bold text-slate-900 group-hover:${c.text} transition-colors line-clamp-1`}>{f.title}</p>
                               <div className="flex items-center gap-3 text-[11.5px] font-bold text-slate-500 uppercase tracking-wider mt-1.5">
                                  <span className="text-slate-700 font-extrabold">{f.registration}</span>
                                  <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
