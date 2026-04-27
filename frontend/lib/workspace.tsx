@@ -10,6 +10,7 @@ import {
   Radio,
   Plug,
   Box,
+  Globe,
   type LucideIcon,
 } from "lucide-react";
 
@@ -130,6 +131,7 @@ export const WORKSPACES: Record<WorkspaceSlug, WorkspaceConfig> = {
     mainNav: [
       { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
       { href: "/drone-compliance", icon: Box, label: "Drone Trace" },
+      { href: "/eu-origin", icon: Globe, label: "EU Origin Map" },
     ],
     secondaryNav: [
       { href: "/integrations", icon: Plug, label: "Integrations", secondary: true },
