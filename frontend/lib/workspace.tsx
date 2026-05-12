@@ -11,6 +11,7 @@ import {
   Plug,
   Box,
   Globe,
+  BookOpen,
   type LucideIcon,
 } from "lucide-react";
 
@@ -117,6 +118,7 @@ export const WORKSPACES: Record<WorkspaceSlug, WorkspaceConfig> = {
       { href: "/engine-health", icon: Gauge, label: "Engines" },
       { href: "/llp", icon: ShieldCheck, label: "Life Limited Parts" },
       { href: "/aircraft", icon: Plane, label: "Aircraft" },
+      { href: "/logbooks", icon: BookOpen, label: "Logbooks" },
     ],
     secondaryNav: SHARED_SECONDARY,
   },

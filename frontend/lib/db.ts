@@ -348,30 +348,39 @@ export async function query<T = Record<string, unknown>>(
         }
     }
 
-    const conn = await getConnection();
+    // Rewrite PostgreSQL positional parameters ($1, $2) to Snowflake bindings (?)
+    let sfSql = sql.replace(/\$\d+/g, "?");
+    // Remove PostgreSQL specific type casting syntax like `::text` and `::int`
+    sfSql = sfSql.replace(/::text/g, "::string").replace(/::int/g, "::integer");
 
-    try {
-        // Rewrite PostgreSQL positional parameters ($1, $2) to Snowflake bindings (?)
-        let sfSql = sql.replace(/\$\d+/g, "?");
+    // Retry once on stale/terminated connection (error 407002)
+    for (let attempt = 0; attempt < 2; attempt++) {
+        const conn = await getConnection();
+        try {
+            // Snowflake promise execute(sqlText, binds) returns rows or undefined
+            const result = (await conn.execute(sfSql, params)) ?? [];
 
-        // Remove PostgreSQL specific type casting syntax like `::text` and `::int`
-        sfSql = sfSql.replace(/::text/g, "::string").replace(/::int/g, "::integer");
-
-        // Snowflake promise execute(sqlText, binds) returns rows or undefined
-        const result = (await conn.execute(sfSql, params)) ?? [];
-
-        // Convert keys to lowercase since Snowflake returns ALL_CAPS keys
-        return (Array.isArray(result) ? result : []).map((row: any) => {
-            const newRow: Record<string, any> = {};
-            for (const [key, val] of Object.entries(row)) {
-                newRow[key.toLowerCase()] = val;
+            // Convert keys to lowercase since Snowflake returns ALL_CAPS keys
+            return (Array.isArray(result) ? result : []).map((row: any) => {
+                const newRow: Record<string, any> = {};
+                for (const [key, val] of Object.entries(row)) {
+                    newRow[key.toLowerCase()] = val;
+                }
+                return newRow as unknown as T;
+            });
+        } catch (err: any) {
+            const code = err?.code ?? err?.cause?.code;
+            if ((code === 407002 || code === 408002) && attempt === 0) {
+                // Stale connection — clear cache and retry
+                console.warn("Snowflake connection stale, reconnecting...");
+                connectionPromise = null;
+                continue;
             }
-            return newRow as unknown as T;
-        });
-    } catch (err) {
-        console.error("Query Error:", err, "SQL:", sql, "Params:", params);
-        throw err;
+            console.error("Query Error:", err, "SQL:", sql, "Params:", params);
+            throw err;
+        }
     }
+    throw new Error("Snowflake query failed after retry");
 }
 
 /**
