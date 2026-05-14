@@ -17,6 +17,7 @@ interface AirplanesAircraft {
   flight?: string;
   r?: string;
   t?: string;
+  category?: string;
   lat?: number;
   lon?: number;
   alt_baro?: number;
@@ -66,6 +67,9 @@ function toStateVector(a: AirplanesAircraft, nowSec: number): OpenSkyStateVector
     true_track: track,
     vertical_rate: baroRate,
     geo_altitude: baro,
+    category: typeof a.category === "string" ? a.category : null,
+    aircraftType: typeof a.t === "string" ? a.t.trim().toUpperCase() || null : null,
+    registration: typeof a.r === "string" ? a.r.trim() || null : null,
   };
 }
 

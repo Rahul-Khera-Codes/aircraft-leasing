@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import AirplaneCanvas from "@/components/models/AirplaneModel";
+import HelicopterCanvas from "@/components/models/HelicopterModel";
 import EngineFocusView from "@/components/models/EngineFocusView";
 import { FileText, Cpu, AlertTriangle, CheckCircle, ShieldAlert, Plane, Activity, ChevronRight, X, ChevronDown, ChevronLeft } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -162,6 +164,9 @@ const filterFindings = (findings: Finding[], part: string) => {
 };
 
 export default function AircraftPage() {
+    const { workspace } = useParams<{ workspace: string }>();
+    const isRotaryWing = workspace === "rotary-wing";
+
     const [fleet, setFleet] = useState<FleetAircraft[]>([]);
     const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
     const [caseDetail, setCaseDetail] = useState<CaseDetail | null>(null);
@@ -393,17 +398,27 @@ export default function AircraftPage() {
                                                 <Plane className="w-4 h-4 text-blue-600" />
                                             </div>
                                             <div className="min-w-0">
-                                                <div className="text-[11px] font-bold text-slate-900 truncate">Aircraft locator</div>
+                                                <div className="text-[11px] font-bold text-slate-900 truncate">
+                                                    {isRotaryWing ? "Helicopter digital twin" : "Aircraft locator"}
+                                                </div>
                                                 <div className="text-[9px] text-slate-400 truncate">Drag to rotate · Scroll to zoom</div>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="h-[320px] p-2 bg-slate-50/50">
-                                        <AirplaneCanvas
-                                            status={currentStatuses}
-                                            onPartClick={(part: string) => setActivePart(part === "fuselage" ? null : part)}
-                                            activePart={activePart}
-                                        />
+                                        {isRotaryWing ? (
+                                            <HelicopterCanvas
+                                                status={currentStatuses}
+                                                onPartClick={(part: string) => setActivePart(part === "fuselage" ? null : part)}
+                                                activePart={activePart}
+                                            />
+                                        ) : (
+                                            <AirplaneCanvas
+                                                status={currentStatuses}
+                                                onPartClick={(part: string) => setActivePart(part === "fuselage" ? null : part)}
+                                                activePart={activePart}
+                                            />
+                                        )}
                                     </div>
                                 </div>
                             </div>

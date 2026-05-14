@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
+import { useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "@/components/layout/Header";
@@ -20,6 +21,25 @@ import {
   Search,
   Loader2,
 } from "lucide-react";
+
+/** ICAO type designators for rotorcraft (keep in sync with TrafficMap.tsx) */
+const HELICOPTER_TYPES = new Set([
+  "A109","AW13","AW16","AW17","AW18",
+  "AS32","AS3B","AS35","AS50","AS55","AS65",
+  "B06","B06T","B07","B07J","B105","B212","B214","B230","B412","B427","B429","B430",
+  "BK17","BO10",
+  "EC20","EC25","EC30","EC35","EC45","EC55",
+  "H135","H145","H155","H160","H175","H215","H225",
+  "K226","K407","K412","K44","K47","K76",
+  "MD60","MD52",
+  "NH90",
+  "R22","R44","R66",
+  "S278","S300","S333","S52","S55","S58T","S61","S61N","S61R","S65C","S76","S92",
+  "UH1","UH60","VH60",
+]);
+
+/** Aberdeen / North Sea — primary UK offshore helicopter hub */
+const UK_HELI_CENTER = { lat: 57.16, lon: -2.09, radiusNm: 250 };
 
 const POLL_INTERVAL_MS = 10_000;
 
@@ -59,6 +79,9 @@ function filterStates(
 }
 
 export default function AdsbPage() {
+  const { workspace } = useParams<{ workspace: string }>();
+  const isRotaryWing = workspace === "rotary-wing";
+
   const [data, setData] = useState<AdsbResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -71,9 +94,14 @@ export default function AdsbPage() {
     async (icao24?: string) => {
       setError(null);
       try {
-        const url = icao24
-          ? `/api/adsb?icao24=${encodeURIComponent(icao24)}`
-          : "/api/adsb";
+        let url: string;
+        if (icao24) {
+          url = `/api/adsb?icao24=${encodeURIComponent(icao24)}`;
+        } else if (isRotaryWing) {
+          url = `/api/adsb?lat=${UK_HELI_CENTER.lat}&lon=${UK_HELI_CENTER.lon}&radiusNm=${UK_HELI_CENTER.radiusNm}`;
+        } else {
+          url = "/api/adsb";
+        }
         const res = await fetch(url);
         if (!res.ok) {
           const body = await res.json().catch(() => ({}));
@@ -109,7 +137,17 @@ export default function AdsbPage() {
     return () => clearInterval(t);
   }, [loading, error, fetchTraffic]);
 
-  const rawStates = data?.states ?? [];
+  const allStates = data?.states ?? [];
+
+  const rawStates = useMemo(() => {
+    if (!isRotaryWing) return allStates;
+    return allStates.filter(
+      (s) =>
+        s.category === "A7" ||
+        (s.aircraftType != null && HELICOPTER_TYPES.has(s.aircraftType.toUpperCase()))
+    );
+  }, [allStates, isRotaryWing]);
+
   const filteredStates = useMemo(
     () => filterStates(rawStates, searchQuery),
     [rawStates, searchQuery]
@@ -125,23 +163,23 @@ export default function AdsbPage() {
     : "—";
   const isIcao24Query = ICAO24_REG.test(findIcao.trim().slice(0, 6));
 
+  const pageTitle = isRotaryWing ? "Helicopter Traffic" : "Live Traffic";
+  const pageSubtitle = isRotaryWing
+    ? "Live rotorcraft ADS-B · North Sea & UK airspace"
+    : "ADS-B state vectors via Airplanes.live";
+
   if (loading && !data) {
     return (
       <>
-        <Header
-          title="Live Traffic"
-          subtitle="ADS-B state vectors via Airplanes.live"
-        />
-        <LoadingSpinner text="Fetching ADS-B state vectors..." />
+        <Header title={pageTitle} subtitle={pageSubtitle} />
+        <LoadingSpinner text={isRotaryWing ? "Fetching helicopter traffic..." : "Fetching ADS-B state vectors..."} />
       </>
     );
   }
 
   return (
     <>
-      <Header
-        title="Live Traffic"
-        subtitle="ADS-B state vectors via Airplanes.live"
+      <Header title={pageTitle} subtitle={pageSubtitle}
       >
         <button
           onClick={() => {
@@ -337,7 +375,9 @@ export default function AdsbPage() {
               </span>
             </div>
             <p className="text-[11px] text-slate-400 font-medium">
-              Data from Airplanes.live · refreshes every 10s
+              {isRotaryWing
+                ? "Rotorcraft only · North Sea & UK · refreshes every 10s"
+                : "Data from Airplanes.live · refreshes every 10s"}
             </p>
           </div>
 
@@ -361,7 +401,7 @@ export default function AdsbPage() {
                 transition={{ duration: 0.2 }}
                 className="p-4"
               >
-                <TrafficMap states={filteredStates} fitBoundsOnUpdate />
+                <TrafficMap states={filteredStates} fitBoundsOnUpdate helicopterMode={isRotaryWing} />
               </motion.div>
             )}
           </AnimatePresence>

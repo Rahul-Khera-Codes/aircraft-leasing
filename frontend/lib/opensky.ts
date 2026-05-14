@@ -38,6 +38,12 @@ export interface OpenSkyStateVector {
   true_track: number | null;
   vertical_rate: number | null;
   geo_altitude: number | null;
+  /** ADS-B emitter category (e.g. "A7" = rotorcraft/helicopter) */
+  category?: string | null;
+  /** ICAO type designator (e.g. "H145", "S92", "AW13") */
+  aircraftType?: string | null;
+  /** Aircraft registration mark */
+  registration?: string | null;
 }
 
 export interface OpenSkyStatesResponse {
