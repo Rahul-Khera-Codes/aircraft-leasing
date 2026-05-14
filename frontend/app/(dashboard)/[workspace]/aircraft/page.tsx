@@ -11,6 +11,11 @@ import MaintenanceTimeline, { type TimelineEvent } from "@/components/aircraft/M
 
 type PartStatus = "green" | "amber" | "red";
 
+function partLabel(part: string, isRotaryWing: boolean): string {
+    if (isRotaryWing && part === "wings") return "Rotor System";
+    return part.charAt(0).toUpperCase() + part.slice(1);
+}
+
 interface FleetAircraft {
     case_id: string;
     registration: string;
@@ -369,7 +374,7 @@ export default function AircraftPage() {
                                             className={`flex-1 flex items-center justify-between p-3 rounded-xl border border-l-[3px] transition-all duration-150 hover:shadow-md group ${statusCardStyles[status]} shadow-sm`}
                                         >
                                             <div className="flex flex-col gap-0.5">
-                                                <span className="text-[12px] xl:text-[13px] font-bold text-slate-900 capitalize">{part}</span>
+                                                <span className="text-[12px] xl:text-[13px] font-bold text-slate-900">{partLabel(part, isRotaryWing)}</span>
                                                 <span className={`text-[9px] xl:text-[10px] font-bold uppercase tracking-wider ${statusLabelColor[status]}`}>
                                                     {getStatusLabel(status)}
                                                 </span>
@@ -505,6 +510,7 @@ export default function AircraftPage() {
                             selectedFindingId={selectedFindingId}
                             setSelectedFindingId={setSelectedFindingId}
                             hideHeader
+                            isRotaryWing={isRotaryWing}
                         />
                     </motion.div>
                 )}
@@ -516,7 +522,7 @@ export default function AircraftPage() {
 
 
 
-function FindingsPanel({ activePart, setActivePart, currentStatuses, caseDetail, selectedFindingId, setSelectedFindingId, hideHeader }: {
+function FindingsPanel({ activePart, setActivePart, currentStatuses, caseDetail, selectedFindingId, setSelectedFindingId, hideHeader, isRotaryWing }: {
     activePart: string | null;
     setActivePart: (p: string | null) => void;
     currentStatuses: Record<string, PartStatus>;
@@ -524,6 +530,7 @@ function FindingsPanel({ activePart, setActivePart, currentStatuses, caseDetail,
     selectedFindingId: string | null;
     setSelectedFindingId: (id: string | null) => void;
     hideHeader?: boolean;
+    isRotaryWing?: boolean;
 }) {
     const getHighlightedParts = (finding: Finding | null) => {
         if (!finding) return [];
@@ -588,7 +595,7 @@ function FindingsPanel({ activePart, setActivePart, currentStatuses, caseDetail,
                                         }`}>
                                         <StatusIcon status={currentStatuses[activePart]} />
                                     </div>
-                                    <span className="text-sm xl:text-base font-bold text-slate-900 capitalize">{activePart} Telemetry</span>
+                                    <span className="text-sm xl:text-base font-bold text-slate-900">{partLabel(activePart, !!isRotaryWing)} Telemetry</span>
                                 </div>
 
                                 <div className="flex flex-col gap-2 xl:gap-2.5">
@@ -648,7 +655,7 @@ function FindingsPanel({ activePart, setActivePart, currentStatuses, caseDetail,
                                             className={`w-full text-left flex items-center justify-between p-3 xl:p-3.5 rounded-xl border border-l-[3px] transition-all duration-150 hover:shadow-sm cursor-pointer group ${statusCardStyles[status]}`}
                                         >
                                             <div className="flex flex-col gap-0.5">
-                                                <span className="text-[12px] xl:text-[13px] font-bold text-slate-900 capitalize">{part}</span>
+                                                <span className="text-[12px] xl:text-[13px] font-bold text-slate-900">{partLabel(part, !!isRotaryWing)}</span>
                                                 <span className={`text-[10px] xl:text-[11px] font-semibold uppercase tracking-wider ${statusLabelColor[status]}`}>
                                                     {getStatusLabel(status)}
                                                 </span>
