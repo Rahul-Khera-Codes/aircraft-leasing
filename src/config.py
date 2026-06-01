@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     ledger_file_path: str = "./data/ledger.jsonl"
     qldb_ledger_name: str = "aviation-audit"
 
-    # Agent: openai | anthropic (which LLM to use for Technical Airworthiness)
+    # Agent: openai | anthropic | gemma (which LLM to use for Technical Airworthiness)
     agent_provider: str = "anthropic"
 
     # Anthropic Claude (required when agent_provider=anthropic)
@@ -53,6 +53,10 @@ class Settings(BaseSettings):
 
     # OpenAI (required when agent_provider=openai)
     openai_api_key: str = ""
+
+    # Google AI Studio (required when agent_provider=gemma)
+    google_api_key: str = ""
+    gemma_model: str = "gemma-4-27b-it"
 
     # App
     log_level: str = "INFO"
@@ -78,6 +82,9 @@ class Settings(BaseSettings):
         if provider == "openai":
             if not (self.openai_api_key and self.openai_api_key.strip()):
                 raise ValueError("OPENAI_API_KEY is required when AGENT_PROVIDER=openai. Set it in .env.")
+        elif provider == "gemma":
+            if not (self.google_api_key and self.google_api_key.strip()):
+                raise ValueError("GOOGLE_API_KEY is required when AGENT_PROVIDER=gemma. Set it in .env.")
         else:
             if not (self.anthropic_api_key and self.anthropic_api_key.strip()):
                 raise ValueError("ANTHROPIC_API_KEY is required when AGENT_PROVIDER=anthropic. Set it in .env.")

@@ -15,6 +15,7 @@ from src.abstractions.ledger import LedgerEventType
 from src.agents.orchestrator import Orchestrator
 from src.agents.technical_airworthiness import TechnicalAirworthinessAgent
 from src.agents.technical_airworthiness_openai import TechnicalAirworthinessOpenAIAgent
+from src.agents.technical_airworthiness_gemma import TechnicalAirworthinessGemmaAgent
 from src.backends import (
     FileLedgerBackend,
     LocalStorageBackend,
@@ -357,9 +358,12 @@ def _auto_detect_aircraft(sources: list[str]) -> tuple[str, str]:
 @click.option("--type", "aircraft_type", default="auto", help="Aircraft type (or 'auto' to detect)")
 @click.option("--engine", "engine_type", default="auto", help="Engine type (or 'auto' to detect)")
 @click.option("--docs", "docs_dir", type=click.Path(exists=True, file_okay=False), required=True, help="Directory of PDFs")
-def run(case_id: str, registration: str, aircraft_type: str, engine_type: str, docs_dir: str) -> None:
+@click.option("--provider", "ai_provider", default=None, help="AI provider override: openai | anthropic | gemma")
+def run(case_id: str, registration: str, aircraft_type: str, engine_type: str, docs_dir: str, ai_provider: str | None) -> None:
     """Run technical due diligence: ingest PDFs, run orchestrator and Technical Agent, write findings to DB."""
     settings = load_settings()
+    if ai_provider and ai_provider.strip():
+        settings.agent_provider = ai_provider.strip().lower()
     settings.validate_at_startup()
 
     from src.log_config import configure_structlog
@@ -416,19 +420,23 @@ def run(case_id: str, registration: str, aircraft_type: str, engine_type: str, d
     provider = getattr(settings, "agent_provider", "anthropic") or "anthropic"
     provider = str(provider).strip().lower()
 
+    def _build_agents(provider):
+        if provider == "openai":
+            return [TechnicalAirworthinessOpenAIAgent(api_key=settings.openai_api_key)]
+        if provider == "gemma":
+            return [TechnicalAirworthinessGemmaAgent(
+                api_key=settings.google_api_key,
+                model=getattr(settings, "gemma_model", "gemma-4-27b-it"),
+            )]
+        return [TechnicalAirworthinessAgent(api_key=settings.anthropic_api_key)]
+
     if getattr(settings, "use_agent_registry", False):
         from src.agents.registry import discover_agents
         agents = discover_agents()
         if not agents:
-            if provider == "openai":
-                agents = [TechnicalAirworthinessOpenAIAgent(api_key=settings.openai_api_key)]
-            else:
-                agents = [TechnicalAirworthinessAgent(api_key=settings.anthropic_api_key)]
+            agents = _build_agents(provider)
     else:
-        if provider == "openai":
-            agents = [TechnicalAirworthinessOpenAIAgent(api_key=settings.openai_api_key)]
-        else:
-            agents = [TechnicalAirworthinessAgent(api_key=settings.anthropic_api_key)]
+        agents = _build_agents(provider)
     orchestrator = Orchestrator(agents=agents)
     report = orchestrator.run_case(
         case_id=case_id,

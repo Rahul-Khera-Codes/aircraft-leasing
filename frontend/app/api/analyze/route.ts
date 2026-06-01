@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
         const registration = formData.get("registration") as string;
         const rawAircraftType = (formData.get("aircraft_type") as string) || "";
         const rawEngineType = (formData.get("engine_type") as string) || "";
+        const aiProvider = (formData.get("ai_provider") as string) || "";
         const files = formData.getAll("files") as File[];
 
         // "auto" or blank means let the backend detect
@@ -67,12 +68,16 @@ export async function POST(req: NextRequest) {
         const pythonPath = path.join(projectRoot, ".venv", "bin", "python3");
         const scriptPath = path.join(projectRoot, "main.py");
 
+        const validProviders = new Set(["openai", "anthropic", "gemma"]);
+        const providerArg = validProviders.has(aiProvider.toLowerCase()) ? aiProvider.toLowerCase() : "";
+
         const args = [
             scriptPath,
             "--case", caseId,
             "--reg", registration,
             ...(aircraftType ? ["--type", aircraftType] : []),
             ...(engineType ? ["--engine", engineType] : []),
+            ...(providerArg ? ["--provider", providerArg] : []),
             "--docs", tempDir
         ];
 

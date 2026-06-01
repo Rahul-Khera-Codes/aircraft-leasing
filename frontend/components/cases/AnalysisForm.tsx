@@ -30,6 +30,7 @@ export default function AnalysisForm() {
     const [registration, setRegistration] = useState("");
     const [aircraftType, setAircraftType] = useState("");
     const [engineType, setEngineType] = useState("");
+    const [aiProvider, setAiProvider] = useState("openai");
     const [files, setFiles] = useState<FileWithStatus[]>([]);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisProgress, setAnalysisProgress] = useState("");
@@ -67,6 +68,7 @@ export default function AnalysisForm() {
         formData.append("registration", registration);
         formData.append("aircraft_type", aircraftType);
         formData.append("engine_type", engineType);
+        formData.append("ai_provider", aiProvider);
         files.forEach(f => formData.append("files", f.file));
 
         try {
@@ -158,6 +160,34 @@ export default function AnalysisForm() {
                                 onChange={(e) => setEngineType(e.target.value)}
                                 className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#1e4d8a]/20 focus:border-[#1e4d8a] transition-all outline-none text-slate-800"
                             />
+                        </div>
+                    </div>
+
+                    {/* AI Model Selector */}
+                    <div className="space-y-3">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">AI Analysis Model</label>
+                        <div className="grid grid-cols-3 gap-3">
+                            {([
+                                { value: "openai",    label: "GPT-4o-mini",    sub: "OpenAI" },
+                                { value: "anthropic", label: "Claude Sonnet",  sub: "Anthropic" },
+                                { value: "gemma",     label: "Gemma 4",        sub: "Google" },
+                            ] as const).map((m) => (
+                                <button
+                                    key={m.value}
+                                    type="button"
+                                    onClick={() => setAiProvider(m.value)}
+                                    className={`p-4 rounded-xl border-2 text-left transition-all ${
+                                        aiProvider === m.value
+                                            ? "border-[#1e4d8a] bg-[#1e4d8a]/5"
+                                            : "border-slate-200 hover:border-slate-300 bg-white"
+                                    }`}
+                                >
+                                    <div className={`text-sm font-bold mb-0.5 ${aiProvider === m.value ? "text-[#1e4d8a]" : "text-slate-700"}`}>
+                                        {m.label}
+                                    </div>
+                                    <div className="text-xs text-slate-400">{m.sub}</div>
+                                </button>
+                            ))}
                         </div>
                     </div>
 
