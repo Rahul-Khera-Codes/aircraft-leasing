@@ -1,8 +1,9 @@
-"""Technical Airworthiness agent: Google Gemma (via Google AI Studio)."""
+"""Technical Airworthiness agent: Google Gemma via Ollama (self-hosted, no API key)."""
 import json
 import logging
 import uuid
 
+from openai import OpenAI
 from src.agents.base import BaseAgent
 from src.schemas.models import FindingOut, FindingSeverity
 
@@ -36,20 +37,25 @@ REQUIRED JSON STRUCTURE PER FINDING:
 
 
 class TechnicalAirworthinessGemmaAgent(BaseAgent):
-    """Technical Airworthiness agent backed by Google Gemma via Google AI Studio."""
+    """Technical Airworthiness agent backed by Gemma running locally via Ollama.
 
-    def __init__(self, api_key: str, model: str = "gemma-4-27b-it"):
-        from google import genai
-        self._client = genai.Client(api_key=api_key)
+    Uses Ollama's OpenAI-compatible endpoint — no API key or external service needed.
+    Ensure Ollama is running on the host with the desired model pulled:
+        ollama pull gemma4
+    """
+
+    def __init__(self, model: str = "gemma3:1b", ollama_host: str = "http://localhost:11434"):
         self._model = model
+        self._client = OpenAI(
+            base_url=f"{ollama_host}/v1",
+            api_key="ollama",  # required by the client lib but ignored by Ollama
+        )
 
     @property
     def name(self):
         return "technical_airworthiness"
 
     def analyze(self, case_id, registration, aircraft_type, engine_type, documents):
-        from google.genai import types
-
         doc_blobs = []
         for d in documents:
             preview = (d.get("text_preview") or d.get("text", ""))[:8000]
@@ -61,17 +67,18 @@ class TechnicalAirworthinessGemmaAgent(BaseAgent):
             "\n---\n".join(doc_blobs),
         )
         try:
-            response = self._client.models.generate_content(
+            resp = self._client.chat.completions.create(
                 model=self._model,
-                contents=user,
-                config=types.GenerateContentConfig(
-                    system_instruction=SYSTEM,
-                    max_output_tokens=4096,
-                ),
+                messages=[
+                    {"role": "system", "content": SYSTEM},
+                    {"role": "user", "content": user},
+                ],
+                max_tokens=4096,
+                timeout=300,  # Ollama on CPU can be slow — allow 5 min
             )
-            text = (response.text or "").strip()
+            text = (resp.choices[0].message.content or "").strip()
         except Exception as e:
-            logger.exception("Gemma error: %s", e)
+            logger.exception("Gemma/Ollama error: %s", e)
             return [
                 FindingOut(
                     finding_id=uuid.uuid4().hex[:24],

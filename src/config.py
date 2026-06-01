@@ -54,9 +54,9 @@ class Settings(BaseSettings):
     # OpenAI (required when agent_provider=openai)
     openai_api_key: str = ""
 
-    # Google AI Studio (required when agent_provider=gemma)
-    google_api_key: str = ""
-    gemma_model: str = "gemma-4-27b-it"
+    # Gemma via Ollama (self-hosted, no API key needed)
+    gemma_model: str = "gemma3:1b"
+    ollama_host: str = "http://localhost:11434"
 
     # App
     log_level: str = "INFO"
@@ -83,8 +83,7 @@ class Settings(BaseSettings):
             if not (self.openai_api_key and self.openai_api_key.strip()):
                 raise ValueError("OPENAI_API_KEY is required when AGENT_PROVIDER=openai. Set it in .env.")
         elif provider == "gemma":
-            if not (self.google_api_key and self.google_api_key.strip()):
-                raise ValueError("GOOGLE_API_KEY is required when AGENT_PROVIDER=gemma. Set it in .env.")
+            pass  # Ollama is self-hosted — no API key required
         else:
             if not (self.anthropic_api_key and self.anthropic_api_key.strip()):
                 raise ValueError("ANTHROPIC_API_KEY is required when AGENT_PROVIDER=anthropic. Set it in .env.")

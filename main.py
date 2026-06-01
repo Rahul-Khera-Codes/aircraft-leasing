@@ -425,8 +425,8 @@ def run(case_id: str, registration: str, aircraft_type: str, engine_type: str, d
             return [TechnicalAirworthinessOpenAIAgent(api_key=settings.openai_api_key)]
         if provider == "gemma":
             return [TechnicalAirworthinessGemmaAgent(
-                api_key=settings.google_api_key,
-                model=getattr(settings, "gemma_model", "gemma-4-27b-it"),
+                model=getattr(settings, "gemma_model", "gemma3:1b"),
+                ollama_host=getattr(settings, "ollama_host", "http://localhost:11434"),
             )]
         return [TechnicalAirworthinessAgent(api_key=settings.anthropic_api_key)]
 
