@@ -26,6 +26,7 @@ export default function FileUploader({ onClose, onSuccess }: { onClose?: () => v
     const [registration, setRegistration] = useState("");
     const [aircraftType, setAircraftType] = useState("");
     const [engineType, setEngineType] = useState("");
+    const [aiProvider, setAiProvider] = useState("gemma");
     const [status, setStatus] = useState<UploadStatus>({ loading: false, success: false, error: null });
     const [isDragging, setIsDragging] = useState(false);
     const [showOverride, setShowOverride] = useState(false);
@@ -107,6 +108,7 @@ export default function FileUploader({ onClose, onSuccess }: { onClose?: () => v
             formData.append("registration", registration);
             formData.append("aircraft_type", aircraftType || "auto");
             formData.append("engine_type", engineType || "auto");
+            formData.append("ai_provider", aiProvider);
             files.forEach(file => formData.append("files", file));
 
             const res = await fetch("/api/analyze", {
@@ -404,6 +406,34 @@ export default function FileUploader({ onClose, onSuccess }: { onClose?: () => v
                         </motion.div>
                     )}
                 </AnimatePresence>
+
+                {/* ── AI Model Selector ── */}
+                <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">AI Analysis Model</label>
+                    <div className="grid grid-cols-3 gap-2">
+                        {([
+                            { value: "gemma",     label: "Gemma 4",       sub: "Self-hosted · Free" },
+                            { value: "openai",    label: "GPT-4o-mini",   sub: "OpenAI" },
+                            { value: "anthropic", label: "Claude Sonnet", sub: "Anthropic" },
+                        ] as const).map((m) => (
+                            <button
+                                key={m.value}
+                                type="button"
+                                onClick={() => setAiProvider(m.value)}
+                                className={`p-3 rounded-xl border-2 text-left transition-all ${
+                                    aiProvider === m.value
+                                        ? "border-blue-500 bg-blue-50"
+                                        : "border-slate-200 hover:border-slate-300 bg-white"
+                                }`}
+                            >
+                                <div className={`text-sm font-bold leading-tight ${aiProvider === m.value ? "text-blue-600" : "text-slate-700"}`}>
+                                    {m.label}
+                                </div>
+                                <div className="text-[10px] text-slate-400 mt-0.5">{m.sub}</div>
+                            </button>
+                        ))}
+                    </div>
+                </div>
 
                 {/* ── Submit ── */}
                 <div className="flex flex-col gap-3 pt-2">
