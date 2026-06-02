@@ -30,7 +30,7 @@ export default function AnalysisForm() {
     const [registration, setRegistration] = useState("");
     const [aircraftType, setAircraftType] = useState("");
     const [engineType, setEngineType] = useState("");
-    const [aiProvider, setAiProvider] = useState("openai");
+    const [aiProvider, setAiProvider] = useState("gemma");
     const [files, setFiles] = useState<FileWithStatus[]>([]);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisProgress, setAnalysisProgress] = useState("");
