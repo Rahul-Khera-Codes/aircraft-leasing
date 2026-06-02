@@ -58,7 +58,8 @@ class TechnicalAirworthinessGemmaAgent(BaseAgent):
     def analyze(self, case_id, registration, aircraft_type, engine_type, documents):
         doc_blobs = []
         for d in documents:
-            preview = (d.get("text_preview") or d.get("text", ""))[:8000]
+            # Keep preview shorter for Gemma to stay within context window
+            preview = (d.get("text_preview") or d.get("text", ""))[:3000]
             doc_blobs.append("[%s (id: %s)]\n%s" % (d.get("filename", "?"), d.get("doc_id", ""), preview))
         user = "Case: %s | %s | Engine: %s\n\nDocs:\n%s\n\nOutput JSON array of findings." % (
             registration,
@@ -73,8 +74,9 @@ class TechnicalAirworthinessGemmaAgent(BaseAgent):
                     {"role": "system", "content": SYSTEM},
                     {"role": "user", "content": user},
                 ],
-                max_tokens=4096,
-                timeout=300,  # Ollama on CPU can be slow — allow 5 min
+                max_tokens=2048,
+                timeout=120,  # gemma3:4b on 4 CPU cores: ~30-90s
+                extra_body={"options": {"num_ctx": 8192}},  # prevent prompt truncation
             )
             text = (resp.choices[0].message.content or "").strip()
         except Exception as e:
