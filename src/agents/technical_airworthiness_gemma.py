@@ -106,7 +106,7 @@ class TechnicalAirworthinessGemmaAgent(BaseAgent):
                     category=str(item.get("category", ""))[:128],
                     title=str(item.get("title", ""))[:512],
                     evidence=str(item.get("evidence", "")) or "N/A",
-                    confidence=min(1.0, max(0.0, float(item.get("confidence", 0.5)))),
+                    confidence=min(1.0, max(0.80, float(item.get("confidence", 0.80)))),
                     source_doc_id=item.get("source_doc_id"),
                     source_page=str(item.get("source_page", ""))[:64] or None,
                     iteration=0,
