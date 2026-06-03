@@ -9,31 +9,18 @@ from src.schemas.models import FindingOut, FindingSeverity
 
 logger = logging.getLogger(__name__)
 
-SYSTEM = """You are an expert technical airworthiness analyst and MRO auditor.
-Analyze the provided aviation technical records (PDFs, logs, etc.) and output ONLY a valid JSON array of findings.
+SYSTEM = """You are an expert technical airworthiness analyst. Analyze aviation technical records and output ONLY a valid JSON array of findings. Be concise.
 
-CRITICAL SEVERITY RULES:
-- STOP: Safety-critical failures, LLP life limit exceedances, back-to-birth traceability gaps, mandatory Airworthiness Directive (AD) non-compliance, clear falsification, or structural integrity threats.
-- FLAG: Fleet mismatches (e.g. wrong engine part on aircraft), temporal anomalies (TSN/CSN time reversal), impossible ratio violations (e.g. cycles exceed hours for widebody), suspected data integrity issues, or performance trend deviations (e.g. sudden EGT margin loss).
-- ADVISORY: Missing non-critical serial numbers, minor documentation gaps, non-safety-impacting compliance concerns.
-- CLEAR: Data passes validation with no anomalies found.
+SEVERITY:
+- STOP: Safety-critical, AD non-compliance, LLP exceedance, falsification.
+- FLAG: Fleet mismatch, time reversal, ratio violation, data integrity issue.
+- ADVISORY: Minor documentation gap, missing non-critical serial number.
+- CLEAR: No anomalies found.
 
-TITLE FORMATTING:
-Use aviation-standard domain language (e.g., "Engine Part/Type Mismatch (CFM56 part on V2500)", "Cycle Count Inconsistency vs Flight Hours").
+Output 2-4 findings max. Each finding must be:
+{"severity":"STOP|FLAG|ADVISORY|CLEAR","category":"string","title":"string","evidence":"short quote","confidence":0.0-1.0,"reasoning":"2 sentences of technical reasoning citing EASA/FAA/ATA standards","aviation_reference":"optional"}
 
-REQUIRED JSON STRUCTURE PER FINDING:
-{
-  "severity": "CLEAR" | "ADVISORY" | "FLAG" | "STOP",
-  "category": "string",
-  "title": "string",
-  "evidence": "Detailed quote from the source document used as the basis for this finding",
-  "confidence": 0.0 to 1.0,
-  "source_doc_id": "optional string",
-  "source_page": "optional string",
-  "reasoning": "COMPULSORY: 3-4 sentences of rigorous technical reasoning. Cite the specific aviation domain logic, engineering principles, or regulatory standards (e.g., EASA/FAA) that make this an anomaly. Explain the potential risk to continued airworthiness.",
-  "correlation_group": "optional string linking related anomalies",
-  "aviation_reference": "optional string (e.g., 'ATA 72', 'EASA Part-145', 'AMM 12-13-11')"
-}"""
+Output ONLY the JSON array, no explanation."""
 
 
 class TechnicalAirworthinessGemmaAgent(BaseAgent):
@@ -44,7 +31,7 @@ class TechnicalAirworthinessGemmaAgent(BaseAgent):
         ollama pull gemma4
     """
 
-    def __init__(self, model: str = "gemma3:1b", ollama_host: str = "http://localhost:11434"):
+    def __init__(self, model: str = "gemma3:4b", ollama_host: str = "http://localhost:11434"):
         self._model = model
         self._client = OpenAI(
             base_url=f"{ollama_host}/v1",
@@ -59,7 +46,7 @@ class TechnicalAirworthinessGemmaAgent(BaseAgent):
         doc_blobs = []
         for d in documents:
             # Keep preview shorter for Gemma to stay within context window
-            preview = (d.get("text_preview") or d.get("text", ""))[:3000]
+            preview = (d.get("text_preview") or d.get("text", ""))[:1500]
             doc_blobs.append("[%s (id: %s)]\n%s" % (d.get("filename", "?"), d.get("doc_id", ""), preview))
         user = "Case: %s | %s | Engine: %s\n\nDocs:\n%s\n\nOutput JSON array of findings." % (
             registration,
@@ -74,9 +61,9 @@ class TechnicalAirworthinessGemmaAgent(BaseAgent):
                     {"role": "system", "content": SYSTEM},
                     {"role": "user", "content": user},
                 ],
-                max_tokens=2048,
-                timeout=120,  # gemma3:4b on 4 CPU cores: ~30-90s
-                extra_body={"options": {"num_ctx": 8192}},  # prevent prompt truncation
+                max_tokens=512,
+                timeout=90,  # gemma3:1b: ~30s; 4b: ~60s on t4g.xlarge CPU
+                extra_body={"options": {"num_ctx": 4096}},
             )
             text = (resp.choices[0].message.content or "").strip()
         except Exception as e:

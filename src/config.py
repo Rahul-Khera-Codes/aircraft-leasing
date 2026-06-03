@@ -55,7 +55,7 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
 
     # Gemma via Ollama (self-hosted, no API key needed)
-    gemma_model: str = "gemma3:4b"
+    gemma_model: str = "gemma3:1b"
     ollama_host: str = "http://localhost:11434"
 
     # App
